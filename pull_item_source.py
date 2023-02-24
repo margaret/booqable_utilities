@@ -103,11 +103,6 @@ def save_product_info(product_dict, filename):
 		f.write(json.dumps(product_dict))
 
 
-def read_product_keys(product_keys_filename):
-	with open(product_keys_filename) as f:
-		return import_keys(product_keys_filename)
-
-
 def pull_product_info(product_keys):
 	processed_keys = []
 	not_processed = []
@@ -135,6 +130,37 @@ def pull_product_info(product_keys):
 	print("Could not process:\n")
 	print("\n".join(PRODUCT_PAGE_URL.format(product) for product in not_processed))
 	save_product_info(product_data, "current_products.json")
+
+
+def write_descriptions_for_upload():
+	# all_keys = import_keys("all_item_keys.txt")
+	with open("test_keys.txt") as f:
+		all_keys = [k.strip() for k in f.readlines()]
+	with open("current_products_indented.json") as f:
+		data = json.load(f)
+	with open("upload_format_descriptions.csv", "a") as f:
+		for product in all_keys:
+			print(product)
+			if product in data:
+				description = data[product]["description"]
+
+
+def write_images_for_upload():
+	# all_keys = import_keys("all_item_keys.txt")
+	with open("test_keys.txt") as f:
+		all_keys = [k.strip() for k in f.readlines()]
+	with open("current_products_indented.json") as f:
+		data = json.load(f)
+	with open("upload_format.csv", "a") as f:
+		for product in all_keys:
+			print(product)
+			if product in data:
+				while len(data[product]["image urls"]) < 3:
+					data[product]["image urls"].append("")
+				images = ";".join(data[product]["image urls"])
+				f.write("{}\n".format(images))
+			else:
+				f.write(";;\n")
 
 
 # Test run
@@ -194,5 +220,6 @@ VAZO2
 
 
 if __name__ == "__main__":
-	pull_product_info(read_product_keys("all_item_keys.txt"))
+	# pull_product_info(read_product_keys("all_item_keys.txt"))
+	print_for_csv()
 
