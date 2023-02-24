@@ -89,6 +89,11 @@ def parse_product_category(page_source):
 			return line.replace("\r", "").split("<a ", 1)[1].split("</a>", 1)[0].split(">", 1)[1]
 
 
+def import_keys(keys_filename):
+	with open(keys_filename) as f:
+		keys = parse_raw_keys(f.read())
+	return keys
+
 # Test run
 
 def check():
@@ -131,4 +136,5 @@ VAZO2
 
 
 if __name__ == "__main__":
-	check()
+	print(import_keys("item_keys.txt"))
+
