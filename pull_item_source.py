@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 import time
+import json
 
 import requests
 
@@ -89,6 +90,53 @@ def parse_product_category(page_source):
 			return line.replace("\r", "").split("<a ", 1)[1].split("</a>", 1)[0].split(">", 1)[1]
 
 
+def import_keys(keys_filename):
+	with open(keys_filename) as f:
+		keys = parse_raw_keys(f.read())
+	return keys
+
+
+def save_product_info(product_dict, filename):
+	"""Write product_dict to filename as json
+	"""
+	with open(filename, "w") as f:
+		f.write(json.dumps(product_dict))
+
+
+def read_product_keys(product_keys_filename):
+	with open(product_keys_filename) as f:
+		return import_keys(product_keys_filename)
+
+
+def pull_product_info(product_keys):
+	processed_keys = []
+	not_processed = []
+	product_count = len(product_keys)
+	product_data = dict()
+
+	for i, product_key in enumerate(product_keys):
+		print("=== Getting page {0}/{1}: {2} ===".format(i+1, product_count, product_key))
+		try:
+			page_source = get_product_page_source(product_key)
+			if product_exists(page_source):
+				product_data[product_key] = {
+					"name": parse_product_name(page_source),
+					"category": parse_product_category(page_source),
+					"image urls": parse_image_urls(page_source),
+					"description": parse_comments(page_source)
+				}
+			else:
+				not_processed.append(product_key)
+		except Exception as e:
+			print("Error while processing {0}: {1}".format(product_key, e))
+			not_processed.append(product_key)
+		# There probably isn't rate limiting on our site, but let's be polite
+		time.sleep(0.5)
+	print("Could not process:\n")
+	print("\n".join(PRODUCT_PAGE_URL.format(product) for product in not_processed))
+	save_product_info(product_data, "current_products.json")
+
+
 # Test run
 
 def check():
@@ -105,30 +153,46 @@ VAZO2
 	processed_keys = []
 	nonexistent_products = []
 
+	product_data = dict()
 	for i, product_key in enumerate(product_keys):
-		print("=== Getting page {0}/{1}: {2} ===\n".format(i, len(product_keys), product_key))
+		print("=== Getting page {0}/{1}: {2} ===\n".format(i+1, len(product_keys), product_key))
 		page_source = get_product_page_source(product_key)
 		if product_exists(page_source):
+			product_data[product_key] = dict()
 			print("\nPRODUCT NAME")
-			print(parse_product_name(page_source))
+			product_name = parse_product_name(page_source)
+			print(product_name)
+			product_data[product_key]["name"] = product_name
 			print("\nCATEGORY")
-			print(parse_product_category(page_source))
+			product_category = parse_product_category(page_source)
+			print(product_category)
+			product_data[product_key]["category"] = product_category
 			print("\nIMAGES")
-			print("\n".join(parse_image_urls(page_source)))
-			print("\nCOMMENTS")
-			print(parse_comments(page_source))
+			image_urls = parse_image_urls(page_source)
+			print("\n".join(image_urls))
+			product_data[product_key]["image_urls"] = image_urls
+			print("\nDESCRIPTION")
+			product_description = parse_comments(page_source)
+			print(product_description)
+			product_data[product_key]["description"] = product_description
 			processed_keys.append(product_key)
 		else:
 			print("Product page does not exist for {}\n".format(product_key))
 			nonexistent_products.append(product_key)
-
-		# There probably isn't rate limiting on our site, but let's be polite
 		time.sleep(2)
 		print("\n")
 
-	print("Finished!\n")
+	print(json.dumps(product_data, indent=2))
+	save_product_info(product_data, "test_data.json")
+	
+	print("\nNot found on website:")
+	print("\n".join(nonexistent_products))
+
+
+	print("\bFinished!\n")
 
 
 
 if __name__ == "__main__":
-	check()
+	pull_product_info(read_product_keys("all_item_keys.txt"))
+
