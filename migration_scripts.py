@@ -83,20 +83,76 @@ def import_keys(keys_filename):
 	return keys
 
 
-def save_product_info(product_dict, filename):
-	"""Write product_dict to filename as json
-	"""
-	with open(filename, "w") as f:
-		f.write(json.dumps(product_dict))
+def parse_raw_keys(text):
+	return [k.strip() for k in text.split()]
 
 
 def read_product_keys(product_keys_filename):
 	with open(product_keys_filename) as f:
 		return import_keys(product_keys_filename)
 
-def parse_raw_keys(text):
-	return [k.strip() for k in text.split()]
 
+def write_product_json(product_dict, filename):
+	"""Write product_dict to filename as json
+	"""
+	with open(filename, "w") as f:
+		f.write(json.dumps(product_dict))
+
+
+def read_product_json(filename):
+	with open(filename, "r") as f:
+		return json.load(f)
+
+
+
+# Formatting local files
+
+def format_and_write_json_for_pasting(export_filename):
+	"""
+	Reference notes:
+
+	>>> data
+	{'ABC1': {'name': 'cool votive'}, 'XYZ5': {'name': 'awesome chair'}}
+	>>> sorted(data)
+	['ABC1', 'XYZ5']
+	>>> sorted(data, key=lambda x:data[x]["name"])
+	['XYZ5', 'ABC1']
+
+	Output file looks like:
+	
+	––– Amiee Arrow Basket - Small –––
+	Baskets, BAAMS
+
+	Classic woven basket with handles 
+	12" W x 12" D x 14" H
+
+	––– Amilia Organza Drape –––
+	Drapery, BRD1
+
+	Double toned color in red and blue
+	20' H
+
+	––– Amy Chandelier –––
+	Chandeliers, CAAM1
+
+	Wooden Chandelier
+	40" W x 44" H
+	"""
+	
+	with open(export_filename, "a") as f:
+		all_product_data = read_product_json("current_products.json")
+		count = len(all_product_data)
+		for i,por_key in enumerate(sorted(all_product_data, key=lambda x:all_product_data[x]["name"])):
+			print("Writing {0}/{1}".format(i+1, count))
+			name, category = all_product_data[por_key]["name"], all_product_data[por_key]["category"]
+			print(name)
+			description = all_product_data[por_key]["description"]
+			product_info = "––– {0} –––\n{1}, {2}\n\n{3}\n\n".format(
+				name,
+				category,
+				por_key,
+				description)
+			f.write(product_info)
 
 
 # Requests
@@ -204,5 +260,6 @@ def pull_product_info(product_keys):
 
 
 if __name__ == "__main__":
-	pull_product_info(read_product_keys("all_item_keys.txt"))
+	# pull_product_info(read_product_keys("all_item_keys.txt"))
+	format_and_write_json_for_pasting("por_descriptions.txt")
 
