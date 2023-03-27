@@ -48,7 +48,7 @@ class Booqable:
     return categories
   
   def get_categories_of_product_group(product_group_id):
-    response = self.session.get(self.ENDPOINT_BASE + \
+    response = self.get(self.ENDPOINT_BASE + \
       "api/3/category_items?include=category&filter[item_id]={}&page[per]=1000".format(product_group_id)
     )
     return self._extract_categories(response.json())
@@ -69,11 +69,11 @@ class Booqable:
     return photos
 
   def get_photos_of_product_group(product_group_id):
-    response = self.session.get(self.ENDPOINT_BASE + \
+    response = self.get(self.ENDPOINT_BASE + \
       "api/boomerang/photos?filter[owner_id]={}&filter[owner_type]=ProductGroup".format(product_group_id))
 
   def get_product_group_by_id(product_group_id):
-    response = self.session.get(self.ENDPOINT_BASE + \
+    response = self.get(self.ENDPOINT_BASE + \
       "api/v3/product_groups/" + product_group_id)
 
   def _extract_product_properties(default_properties):
@@ -84,7 +84,7 @@ class Booqable:
         product_properties.append(prop["name"])
 
   def get_all_custom_fields():
-    response = self.session.get(self.ENDPOINT_BASE + \
+    response = self.get(self.ENDPOINT_BASE + \
        "api/2/default_properties?page[per]=1000"
     )
 
