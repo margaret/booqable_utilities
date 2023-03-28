@@ -1,8 +1,5 @@
 #!/usr/bin/python3
 
-import json
-import os
-
 import requests
 
 
@@ -20,16 +17,15 @@ class Booqable:
     self.session = requests.Session()
     self._set_session()
 
-    self.product_groups_data = dict()
-    self.product_groups_by_name = dict()
-
   def _set_session(self):
     print("Setting up session")
-    response = self.session.get(self.ENDPOINT_BASE+"customers", params={"api_key": self.API_KEY})
+    response = self.session.get(self.ENDPOINT_BASE+"api/1/customers", params={"api_key": self.API_KEY})
     print(response)
 
   def get(self, url, *args, **kwargs):
-    return self.session.get(url, *args, **kwargs)
+    response = self.session.get(url, *args, **kwargs)
+    response.raise_for_status()
+    return response
   
   #####################################################################################################################
   #
@@ -38,7 +34,7 @@ class Booqable:
   #
   #####################################################################################################################
 
-  def _extract_categories(categories_response_json):
+  def _extract_categories(self, categories_response_json):
     categories = []
     for category_item in categories_response_json["included"]:
       categories.append({
@@ -47,13 +43,13 @@ class Booqable:
       })
     return categories
   
-  def get_categories_of_product_group(product_group_id):
+  def get_categories_of_product_group(self, product_group_id):
     response = self.get(self.ENDPOINT_BASE + \
       "api/3/category_items?include=category&filter[item_id]={}&page[per]=1000".format(product_group_id)
     )
     return self._extract_categories(response.json())
 
-  def _extract_photo_urls(photos_response_json):
+  def _extract_photo_urls(self, photos_response_json):
     """Booqable supports a maximum of 4 photos
     Need to confirm if that is per product_group or per product
     """
@@ -68,61 +64,24 @@ class Booqable:
       photos[photo_key] = photo_item["attributes"]["original_url"]
     return photos
 
-  def get_photos_of_product_group(product_group_id):
-    response = self.get(self.ENDPOINT_BASE + \
+  def get_photos_of_product_group(self, product_group_id):
+    return self.get(self.ENDPOINT_BASE + \
       "api/boomerang/photos?filter[owner_id]={}&filter[owner_type]=ProductGroup".format(product_group_id))
 
-  def get_product_group_by_id(product_group_id):
-    response = self.get(self.ENDPOINT_BASE + \
-      "api/v3/product_groups/" + product_group_id)
+  def get_product_group_by_id(self, product_group_id):
+    return self.get(self.ENDPOINT_BASE + \
+      "api/3/product_groups/" + product_group_id).json()
 
-  def _extract_product_properties(default_properties):
+  def _extract_product_properties(self, default_properties):
     """Return list of names of properties associated with Products"""
     product_properties = []
     for prop in default_properties["default_properties"]:
       if prop["owner_type"] == "Product":
         product_properties.append(prop["name"])
 
-  def get_all_custom_fields():
-    response = self.get(self.ENDPOINT_BASE + \
+  def get_all_custom_fields(self):
+    return self.get(self.ENDPOINT_BASE + \
        "api/2/default_properties?page[per]=1000"
-    )
+    ).json()
 
-  ### old methods, these don't use the same API that the production app does
-
-  def get_all_product_groups(self, refresh=False):
-    """https://developers.booqable.com/#list-all-product-groups
-    Returns dict of json directly from the API response
-     {
-      "product_groups": [list of product dict],
-      "meta": {
-        "total_count": int,
-        "tag_list": {
-          "a tag": int,
-          "another tag": int
-        },
-        "status": {
-          "active": int,
-          "bulk": int,
-          "has_variations": int
-        }
-      }
-     }
-    """
-    if not self.products_groups_data or refresh:
-      url = self.ENDPOINT_BASE + "api/1/product_groups"
-      response = self.get(url)
-      response.raise_for_status()
-      self.products_data = response.json()
-      self._store_product_groups_by_name()
-    return self.product_groups_data
-
-  def _store_product_groups_by_name(self):
-    if not self.product_groups_data:
-      raise ValueError("No product data. Please call Booqable.get_all_products")
-    for product in self.product_groups_data['product_groups']:
-      self.product_groups_by_name[product['name']] = product
-
-  def product(self, product):
-    return self.product_groups_by_name[product]
 
