@@ -18,7 +18,7 @@ Python3 wrapper for Booqable API. This is not a complete library to interface wi
 
 Booqable uses a mix of `v2`, `v3`, and `boomerang` APIs in production. `v1` still seems to work and is still what the official documentation references, but I don't think it's currently maintained.
 
-There doesn't appear to be any public facing documentation on the support timeline or endpoints for each of the API versions
+As of March 28, 2023, support has said that anything outside of what is detailed in https://developers.booqable.com/ is not officially supported although they aren't stopping anyone from reverse engineering the APIs and using them.
 
 ### API authentication
 
