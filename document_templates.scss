@@ -1,0 +1,256 @@
+// NOTE THAT BOOQABLE DOCUMENT CSS IS ACTUALLY SASS (The files should 
+// have a .scss extension, not .css)
+// https://sass-lang.com/guide
+
+// OFFICIAL DOCS
+// https://help.booqable.com/en/articles/1277222-customizing-documents-using-css
+
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+// COPY+PASTE AND SAVE A COPY OF THIS TO YOUR COMPUTER BEFORE YOU
+// MESS AROUND WITH IT. THAT WAY IF YOU SCREW UP, YOU CAN RESET IT
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+
+/////////////////////////////
+// FORMATTING FOR INVOICES //
+/////////////////////////////
+
+&#document.document-invoice {
+  // Hide the line showing Security Deposit because we don't currently
+  // use a security deposit as part of our reservation process.
+  .deposit.print-hide {
+    display: none;
+  }
+}
+
+
+///////////////////////////
+// FORMATTING FOR QUOTES //
+///////////////////////////
+
+&#document.document-quote {
+  
+  // EVERYTHING BELOW HERE SHOULD BE IDENTICAL TO document.document-contract
+  // There's probably a way to separate these out and then reference them but 
+  // I haven't figured it out yet.
+
+  // Align the logo with the text containing Ideas company info
+  #logo-wrapper {
+    // The default for "position" in "css" is "static"
+    // Booqable overrode it to "absolute". Added it here to make it obvious
+    position: absolute;
+    // Set this higher than the rest of the document by shrinking the margin
+    top: 30px;
+    // Approximately center this (positioning is relative to the edge of the 
+    // image, not the center of it)
+    left: 40%;
+  }
+  // #logo refers to the properties image itself. The positioning of the image
+  // shoulud  be set in #logo-wrapper
+  #logo {
+    // Make the logo smaller
+    max-width: 100px;
+  }
+  
+  //////////////////////////////////////////////////////////////
+  // The .right and .left classes below are inside a class .top
+  // I don't know if there is a class .bottom, that seems to be
+  // fulfilled by the .products class
+  //////////////////////////////////////////////////////////////
+
+  // ".left" is the class that contains the client info and the info
+  // fields for the order/reservation
+  .left {
+    width: 65%;
+    .additional-information {
+      // There is a bug in Booqable where column-count is rendered
+      // in the browser view, but not preserved when you export the
+      // document as a PDF. This was reported to them in 03/2023.
+      // If they ever fix it, set this to 2 or 3.
+      column-count: 1;
+    }
+  }
+  // ".right" is the class that contains the Ideas Events company info
+  .right {
+    width: 30%;
+    float: left;
+    font-size: 13px;
+    #company-info {
+      // Override the default max-width of 200px
+      max-width: 98%;
+      text-align: right;
+    }
+  }
+  
+  #products {
+    // Align the products section with the rest of the document
+    // Setting margin-right and margin-left to 0 centers the table
+    width: 95%;
+    margin-right: auto;
+    margin-left: auto;
+    
+    // Formatting for the title "i.e. Contract #5-2" would go here 
+    .title {
+    }
+    
+    .dates {
+      // Booqable overrides margin-top to -20px. Reset it to 0px
+      // so it is vertically aligned with .title
+      margin-top: 0px;
+    }
+    
+    .table {
+
+      // Add more whitespace by overriding the default width of the
+      // top margin
+      padding-top: 30px;
+      
+      th.title {
+        width: 30%;
+      }
+      td.title {
+        width: 30%;
+      }
+      // The class of the header for "Tax" is .vat (Booqable is 
+      // based in the EU)
+      th.right.vat {
+        // Hide the column from view without actually removing it.
+        opacity: 0;
+      }
+      // A column for the tax exists, but we don't set tax on 
+      // individual products 
+      .tax {
+        // this is blank anyway because we don't set tax.
+        // do not set {opacity: 0;} or {display:none;} otherwise it
+        // will miss up the table row borders formatting that Booqable set
+      }
+    }
+  }
+}
+
+//////////////////////////////
+// FORMATTING FOR CONTRACTS //
+//////////////////////////////
+
+&#document.document-contract {
+
+  // Formatting for "Additional information > Contract body" 
+  // at https://ideas-events-and-rentals.booqable.com/settings/documents/customize?tab=contract
+  // i.e. where we put our Terms & Conditions into the Contract
+  #body {
+    p {
+      font-size: 11px;
+    }
+    // Width must be reduced if font-size is changed, otherwise 
+    // the PDF renders with the right edge of the text cut off.
+    // I think this is a bug in how Booqable renders the PDFs.
+    width: 95%;
+    // Setting these margins to auto will center the contract body
+    // within the document.
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  // Formatting for "Additional information > Contract footer" would go
+  // here
+  #footer {
+  }
+  
+  // EVERYTHING BELOW HERE SHOULD BE IDENTICAL TO document.document-quote
+  // There's probably a way to separate these out and then reference them but 
+  // I haven't figured it out yet.
+
+  // Align the logo with the text containing Ideas company info
+  #logo-wrapper {
+    // The default for "position" in "css" is "static"
+    // Booqable overrode it to "absolute". Added it here to make it obvious
+    position: absolute;
+    // Set this higher than the rest of the document by shrinking the margin
+    top: 30px;
+    // Approximately center this (positioning is relative to the edge of the 
+    // image, not the center of it)
+    left: 40%;
+  }
+  // #logo refers to the properties image itself. The positioning of the image
+  // shoulud  be set in #logo-wrapper
+  #logo {
+    // Make the logo smaller
+    max-width: 100px;
+  }
+  
+  //////////////////////////////////////////////////////////////
+  // The .right and .left classes below are inside a class .top
+  // I don't know if there is a class .bottom, that seems to be
+  // fulfilled by the .products class
+  //////////////////////////////////////////////////////////////
+
+  // ".left" is the class that contains the client info and the info
+  // fields for the order/reservation
+  .left {
+    width: 65%;
+    .additional-information {
+      // There is a bug in Booqable where column-count is rendered
+      // in the browser view, but not preserved when you export the
+      // document as a PDF. This was reported to them in 03/2023.
+      // If they ever fix it, set this to 2 or 3.
+      column-count: 1;
+    }
+  }
+  // ".right" is the class that contains the Ideas Events company info
+  .right {
+    width: 30%;
+    float: left;
+    font-size: 13px;
+    #company-info {
+      // Override the default max-width of 200px
+      max-width: 98%;
+      text-align: right;
+    }
+  }
+  
+  #products {
+    // Align the products section with the rest of the document
+    // Setting margin-right and margin-left to 0 centers the table
+    width: 95%;
+    margin-right: auto;
+    margin-left: auto;
+    
+    // Formatting for the title "i.e. Contract #5-2" would go here 
+    .title {
+    }
+    
+    .dates {
+      // Booqable overrides margin-top to -20px. Reset it to 0px
+      // so it is vertically aligned with .title
+      margin-top: 0px;
+    }
+    
+    .table {
+
+      // Add more whitespace by overriding the default width of the
+      // top margin
+      padding-top: 30px;
+      
+      th.title {
+        width: 30%;
+      }
+      td.title {
+        width: 30%;
+      }
+      // The class of the header "Tax" is .vat (Booqable is 
+      // based in the EU)
+      th.right.vat {
+        // Hide the column from view without actually removing it.
+        opacity: 0;
+      }
+      // A column for the tax exists, but we don't set tax on 
+      // individual products 
+      .tax {
+        // this is blank anyway because we don't set tax.
+        // do not set {opacity: 0;} or {display:none;} otherwise it
+        // will miss up the table row borders formatting that Booqable set
+      }
+    }
+  }
+}
